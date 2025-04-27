@@ -1,0 +1,85 @@
+# --- Spring Boot (Backend) - boat-management-back ---
+
+# Ignore Maven build directory
+/boat-management-back/target/
+
+# Ignore Gradle build directory
+/boat-management-back/.gradle/
+/boat-management-back/build/
+
+# Ignore Spring Boot specific files
+/boat-management-back/.idea/
+/boat-management-back/*.iml
+
+# Ignore dependency directories
+/boat-management-back/.mvn/
+/boat-management-back/mvnw
+/boat-management-back/mvnw.cmd
+
+# Ignore Java build files
+/boat-management-back/*.log
+/boat-management-back/*.class
+
+# Ignore configuration files that are environment-specific
+/boat-management-back/application.properties
+/boat-management-back/application.yml
+
+# Ignore IntelliJ IDEA project files in the backend
+/boat-management-back/.idea/
+/boat-management-back/*.iml
+
+# Ignore Eclipse specific files
+/boat-management-back/.settings/
+/boat-management-back/.classpath
+/boat-management-back/.project
+
+# --- Angular (Frontend) - boat-management-front ---
+
+# Node.js dependency directory
+/boat-management-front/node_modules/
+
+# Angular build directory
+/boat-management-front/dist/
+/boat-management-front/out-tsc/
+
+# Angular development files
+/boat-management-front/.angular/
+
+# TypeScript declaration files
+/boat-management-front/*.tsbuildinfo
+
+# Logs
+/boat-management-front/npm-debug.log*
+/boat-management-front/yarn-debug.log*
+/boat-management-front/yarn-error.log*
+
+# IDE specific files for the frontend
+/boat-management-front/.idea/
+/boat-management-front/.vscode/
+/boat-management-front/*.sublime-project
+/boat-management-front/*.sublime-workspace
+
+# System-specific files
+/boat-management-front/.DS_Store
+/boat-management-front/Thumbs.db
+
+# Environment variables for frontend
+/boat-management-front/.env
+/boat-management-front/.env.local
+/boat-management-front/.env.*.local
+
+# Generated files for frontend
+/boat-management-front/package-lock.json
+/boat-management-front/yarn.lock
+
+# --- General ---
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# JetBrains specific for any other projects (if you have more than just the backend/frontend)
+.idea/
+
+# Visual Studio Code specific
+.vscode/

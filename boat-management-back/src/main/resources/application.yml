@@ -1,0 +1,25 @@
+server:
+  port: '7070'
+
+spring:
+  application:
+    name: boat-management
+  datasource:
+    url: jdbc:postgresql://localhost:5432/boat_management
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+
+# JWT Configuration
+app:
+  security:
+    allowed-origins: http://localhost:4200
+    jwt:
+      secret: 8Zz5tw0Ionm3XPZZfN0NOml3z9FMfmpgXwovR9fp6ryDIoGRM8EPHAB6iHsc0fb
+      expiration: 3600000
+      refresh-expiration: 86400000
+
+

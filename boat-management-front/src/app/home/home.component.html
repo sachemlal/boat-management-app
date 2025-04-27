@@ -1,0 +1,23 @@
+<app-toast *ngIf="toast$ | async as toast" [message]="toast.message" [type]="toast.type"></app-toast>
+
+<div class="boat-list-container">
+  <h2>All Boats</h2>
+
+  <div *ngIf="boats.length === 0" class="empty-list">
+    No boats found.
+  </div>
+
+  <div class="boat-card" *ngFor="let boat of boats">
+    <h3>{{ boat.name }}</h3>
+    <p><strong>Description:</strong> {{ boat.description }}</p>
+
+    <div class="card-actions">
+      <button (click)="onBoatClick(boat)">Show</button>
+      <button (click)="onEditBoat(boat.id)">Edit</button>
+      <button class="delete-btn" (click)="onDeleteBoat($event, boat.id)">Delete</button>
+    </div>
+  </div>
+  <button (click)="onCreateBoat()" class="add-boat-button">
+    Add Boat
+  </button>
+</div>

@@ -1,0 +1,25 @@
+<app-toast *ngIf="toast$ | async as toast" [message]="toast.message" [type]="toast.type"></app-toast>
+
+<p>Please login, if you didnt signup yet, you may register <a href="#" (click)="onLinkClick($event)">here</a></p>
+<div class="login-container">
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-field">
+      <label for="username">Username</label>
+      <input id="username" type="text" formControlName="username" />
+      <div class="error" *ngIf="loginForm.get('username')?.invalid && (loginForm.get('username')?.touched || loginForm.get('username')?.dirty)">
+        Username is required.
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" />
+      <div class="error" *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)">
+        Password is required.
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid">Login</button>
+  </form>
+</div>

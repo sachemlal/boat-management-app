@@ -1,0 +1,82 @@
+.boat-detail-container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 80%;
+  margin: 30px auto;
+  max-width: 800px;
+}
+
+.boat-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.boat-header h2 {
+  font-size: 32px;
+  color: #003366;
+  font-weight: bold;
+}
+
+.boat-type {
+  color: #007bff;
+  font-size: 18px;
+  font-style: italic;
+}
+
+.boat-properties {
+  margin-bottom: 30px;
+}
+
+.boat-property {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.property-label {
+  font-weight: bold;
+  color: #333;
+}
+
+.property-value {
+  color: #555;
+}
+
+.boat-actions {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 15px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.edit-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #218838;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}

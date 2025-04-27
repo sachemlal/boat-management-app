@@ -1,0 +1,32 @@
+<app-toast *ngIf="toast$ | async as toast" [message]="toast.message" [type]="toast.type"></app-toast>
+
+<div class="register-container">
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div class="form-field">
+      <label for="fullname">Full name</label>
+      <input id="fullname" type="text" formControlName="fullname" />
+      <div class="error" *ngIf="registerForm.get('fullname')?.invalid && (registerForm.get('fullname')?.touched || registerForm.get('fullname')?.dirty)">
+        Full name is required.
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="username">Username</label>
+      <input id="username" type="text" formControlName="username" />
+      <div class="error" *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.touched || registerForm.get('username')?.dirty)">
+        Username is required.
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" />
+      <div class="error" *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)">
+        Password is required.
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="registerForm.invalid">Register</button>
+  </form>
+</div>

@@ -99,21 +99,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleExpiredJwtException_ShouldReturnUnauthorizedResponse() {
-        // When
-        ExpiredJwtException exception = new ExpiredJwtException(null, null, "Token expired");
-        when(request.getRequestURI()).thenReturn("/api/test");
-
-        // Then
-        ResponseEntity<ApiErrorResponse> response = globalExceptionHandler.handleExpiredJwt(exception, request);
-
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(response.getBody().message()).isEqualTo("Token expired");
-    }
-
-    @Test
     void handleBadCredentialsException_ShouldReturnUnauthorizedResponse() {
         // When
         BadCredentialsException exception = new BadCredentialsException("Bad credentials");

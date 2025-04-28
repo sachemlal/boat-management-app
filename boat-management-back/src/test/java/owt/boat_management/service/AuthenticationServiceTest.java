@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 class AuthenticationServiceTest {
 
     @InjectMocks
-    private AuthenticationService authenticationService;
+    private AuthenticationServiceImpl authenticationService;
 
     @Mock
     private UserRepository userRepository;

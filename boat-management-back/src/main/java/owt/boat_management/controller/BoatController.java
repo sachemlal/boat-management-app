@@ -4,13 +4,10 @@ package owt.boat_management.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import owt.boat_management.dto.BoatRequest;
 import owt.boat_management.dto.BoatResponse;
-import owt.boat_management.model.Boat;
-import owt.boat_management.model.User;
 import owt.boat_management.service.BoatService;
 import owt.boat_management.service.UserDetailsServiceImpl;
 
@@ -26,74 +23,66 @@ public class BoatController {
 
     /**
      * Get all the boats for a user.
-     * @param userDetails
      * @return
      */
     @GetMapping
-    public ResponseEntity<?> getAllBoats(@AuthenticationPrincipal UserDetails userDetails) {
-        List<Boat> boats = boatService.getAllBoatsByUsername(userDetails.getUsername());
-        List<BoatResponse> boatResponses = boats.stream()
-                .map(boat -> new BoatResponse(boat.getId(), boat.getName(), boat.getDescription())).toList();
-        return ResponseEntity.ok(boatResponses);
+    public ResponseEntity<?> getAllBoats() {
+
+        List<BoatResponse> response = boatService.getBoatsForCurrentUser();
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * Get a boat by id.
-     * @param userDetails
+     * Get a boat by id
      * @param boatId
      * @return
      */
     @GetMapping("/{boatId}")
-    public ResponseEntity<?> getBoat(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String boatId) {
-        Boat boat = boatService.getBoatById(userDetails.getUsername(), Long.parseLong(boatId));
-        return ResponseEntity.ok(new BoatResponse(boat.getId(), boat.getName(), boat.getDescription()));
+    @PreAuthorize("@boatSecurity.hasAccessToBoat(#boatId)")
+    public ResponseEntity<?> getBoat(@PathVariable String boatId) {
+
+        BoatResponse response  = boatService.getBoatById(Long.parseLong(boatId));
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Add a new boat.
-     * @param userDetails
      * @param boatRequest
      * @return
      */
     @PostMapping
-    public ResponseEntity<?> addBoat(@AuthenticationPrincipal UserDetails userDetails,@Valid @RequestBody BoatRequest boatRequest) {
+    public ResponseEntity<?> addBoat(@Valid @RequestBody BoatRequest boatRequest) {
 
-        User user = userDetailsService.loadUserByUserDetails(userDetails.getUsername());
-        Boat boat = boatService.saveBoat(user, boatRequest);
-
-        return ResponseEntity.ok(new BoatResponse(boat.getId(), boat.getName(), boat.getDescription()));
+        BoatResponse response = boatService.addBoatForCurrentUser(boatRequest);
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Update a boat.
-     * @param userDetails
      * @param boatId
      * @param boatRequest
      * @return
      */
     @PatchMapping("/{boatId}")
-    public ResponseEntity<?> updateBoat(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String boatId, @Valid @RequestBody BoatRequest boatRequest) {
+    @PreAuthorize("@boatSecurity.hasAccessToBoat(#boatId)")
+    public ResponseEntity<?> patchBoat(@PathVariable String boatId, @Valid @RequestBody BoatRequest boatRequest) {
 
         BoatRequest boatRequestUpdated = new BoatRequest(Long.parseLong(boatId), boatRequest.name(), boatRequest.description());
-        User user = userDetailsService.loadUserByUserDetails(userDetails.getUsername());
-        Boat boat = boatService.patchBoat(user, boatRequestUpdated);
+        BoatResponse response = boatService.patchBoat(Long.parseLong(boatId), boatRequestUpdated);
 
-        return ResponseEntity.ok(new BoatResponse(boat.getId(), boat.getName(), boat.getDescription()));
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Delete a boat.
-     * @param userDetails
      * @param boatId
      * @return
      */
     @DeleteMapping("/{boatId}")
-    public ResponseEntity<?> deleteBoat(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String boatId) {
+    @PreAuthorize("@boatSecurity.hasAccessToBoat(#boatId)")
+    public ResponseEntity<?> deleteBoat(@PathVariable String boatId) {
 
-        assert userDetails != null : "User not found";
-        User user = userDetailsService.loadUserByUserDetails(userDetails.getUsername());
-        boatService.deleteBoat(user.getId(), Long.parseLong(boatId));
-
+        boatService.deleteBoat(Long.parseLong(boatId));
         return ResponseEntity.noContent().build();
     }
 

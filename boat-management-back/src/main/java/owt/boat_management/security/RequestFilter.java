@@ -1,4 +1,4 @@
-package owt.boat_management.filter;
+package owt.boat_management.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,6 +1,11 @@
 package owt.boat_management.service;
 
+import org.mockito.Mockito;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import owt.boat_management.dto.BoatRequest;
+import owt.boat_management.dto.BoatResponse;
 import owt.boat_management.model.Boat;
 import owt.boat_management.model.User;
 import owt.boat_management.repository.BoatRepository;
@@ -29,7 +34,7 @@ class BoatServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private BoatService boatService;
+    private BoatServiceImpl boatService;
 
     private User user;
     private Boat boat;
@@ -52,105 +57,117 @@ class BoatServiceTest {
                 .build();
 
         boatRequest = new BoatRequest(1L, "Updated Boat", "Updated Description");
+
+        mockSecurityContext();
+    }
+
+    private void mockSecurityContext() {
+        // 1. Mock Authentication
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("testuser"); // fake username
+
+        // 2. Mock SecurityContext
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+
+        // 3. Set the SecurityContext to the SecurityContextHolder
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
     void testGetAllBoatsByUsername_Success() {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-        when(boatRepository.findBoatByUserId(user.getId())).thenReturn(List.of(boat));
+        when(boatRepository.findByUserId(user.getId())).thenReturn(List.of(boat));
 
-        List<Boat> boats = boatService.getAllBoatsByUsername("testuser");
+        List<BoatResponse> boats = boatService.getBoatsForCurrentUser();
 
         assertNotNull(boats);
         assertEquals(1, boats.size());
-        assertEquals("Test Boat", boats.get(0).getName());
+        assertEquals("Test Boat", boats.get(0).name());
 
         verify(userRepository).findByUsername("testuser");
-        verify(boatRepository).findBoatByUserId(user.getId());
     }
 
     @Test
     void testGetBoatById_Success() {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-        when(boatRepository.findOneBoatByUserIdAndId(user.getId(), boat.getId())).thenReturn(Optional.of(boat));
+        when(boatRepository.findById(boat.getId())).thenReturn(Optional.of(boat));
 
-        Boat foundBoat = boatService.getBoatById("testuser", 1L);
+        BoatResponse foundBoat = boatService.getBoatById(1L);
 
         assertNotNull(foundBoat);
-        assertEquals("Test Boat", foundBoat.getName());
+        assertEquals("Test Boat", foundBoat.name());
 
-        verify(userRepository).findByUsername("testuser");
-        verify(boatRepository).findOneBoatByUserIdAndId(user.getId(), 1L);
+        verify(boatRepository).findById(1L);
     }
 
     @Test
     void testGetBoatById_UserNotFound() {
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> {
-            boatService.getBoatById("testuser", 1L);
+            boatService.getBoatById(1L);
         });
-
-        verify(userRepository).findByUsername("testuser");
     }
 
     @Test
     void testSaveBoat_Success() {
         when(boatRepository.save(any(Boat.class))).thenReturn(boat);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
 
-        Boat savedBoat = boatService.saveBoat(user, new BoatRequest(null, "Test Boat", "Test Description"));
+        BoatResponse savedBoat = boatService.addBoatForCurrentUser(new BoatRequest(null, "Test Boat", "Test Description"));
 
         assertNotNull(savedBoat);
-        assertEquals("Test Boat", savedBoat.getName());
+        assertEquals("Test Boat", savedBoat.name());
 
         verify(boatRepository).save(any(Boat.class));
     }
 
     @Test
     void testUpdateBoat_Success() {
-        when(boatRepository.findOneBoatByUserIdAndId(user.getId(), boatRequest.id())).thenReturn(Optional.of(boat));
+        when(boatRepository.findById(boatRequest.id())).thenReturn(Optional.of(boat));
         when(boatRepository.save(any(Boat.class))).thenReturn(boat);
 
-        Boat updatedBoat = boatService.patchBoat(user, boatRequest);
+        BoatResponse updatedBoat = boatService.patchBoat(boat.getId(), boatRequest);
 
         assertNotNull(updatedBoat);
-        assertEquals("Updated Boat", updatedBoat.getName());
-        assertEquals("Updated Description", updatedBoat.getDescription());
+        assertEquals("Updated Boat", updatedBoat.name());
+        assertEquals("Updated Description", updatedBoat.description());
 
-        verify(boatRepository).findOneBoatByUserIdAndId(user.getId(), boatRequest.id());
+        verify(boatRepository).findById(boatRequest.id());
         verify(boatRepository).save(any(Boat.class));
     }
 
     @Test
     void testUpdateBoat_BoatNotFound() {
-        when(boatRepository.findOneBoatByUserIdAndId(user.getId(), boatRequest.id())).thenReturn(Optional.empty());
+        when(boatRepository.findById(boatRequest.id())).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> {
-            boatService.patchBoat(user, boatRequest);
+            boatService.patchBoat(boatRequest.id(), boatRequest);
         });
 
-        verify(boatRepository).findOneBoatByUserIdAndId(user.getId(), boatRequest.id());
+        verify(boatRepository).findById(boatRequest.id());
     }
 
     @Test
     void testDeleteBoat_Success() {
-        when(boatRepository.findOneBoatByUserIdAndId(user.getId(), boat.getId())).thenReturn(Optional.of(boat));
+        when(boatRepository.findById(boat.getId())).thenReturn(Optional.of(boat));
         doNothing().when(boatRepository).delete(boat);
 
-        boatService.deleteBoat(user.getId(), boat.getId());
+        boatService.deleteBoat(boat.getId());
 
-        verify(boatRepository).findOneBoatByUserIdAndId(user.getId(), boat.getId());
+        verify(boatRepository).findById(boat.getId());
         verify(boatRepository).delete(boat);
     }
 
     @Test
     void testDeleteBoat_BoatNotFound() {
-        when(boatRepository.findOneBoatByUserIdAndId(user.getId(), boat.getId())).thenReturn(Optional.empty());
+        when(boatRepository.findById(boat.getId())).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> {
-            boatService.deleteBoat(user.getId(), boat.getId());
+            boatService.deleteBoat(boat.getId());
         });
 
-        verify(boatRepository).findOneBoatByUserIdAndId(user.getId(), boat.getId());
+        verify(boatRepository).findById(boat.getId());
     }
 }

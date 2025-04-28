@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -50,11 +51,11 @@ class BoatControllerTest {
     @Test
     void getAllBoats_ShouldReturnListOfBoats() {
         // Arrange: Mock the service to return a list of boats
-        when(boatService.getAllBoatsByUsername(userDetails.getUsername()))
-                .thenReturn(List.of(boat));
+        when(boatService.getBoatsForCurrentUser())
+                .thenReturn(Stream.of(boat).map(boat-> new BoatResponse(boat.getId(), boat.getName(), boat.getDescription())).toList());
 
         // Act
-        ResponseEntity<?> response = boatController.getAllBoats(userDetails);
+        ResponseEntity<?> response = boatController.getAllBoats();
 
         // Assert
         assertThat(response).isNotNull();
@@ -66,17 +67,17 @@ class BoatControllerTest {
         assertThat(boatResponses.get(0).name()).isEqualTo(boat.getName());
 
         // Verify
-        verify(boatService, times(1)).getAllBoatsByUsername(userDetails.getUsername());
+        verify(boatService, times(1)).getBoatsForCurrentUser();
     }
 
     @Test
     void getBoat_ShouldReturnBoat() {
         // When
-        when(boatService.getBoatById(userDetails.getUsername(), boat.getId()))
-                .thenReturn(boat);
+        when(boatService.getBoatById(boat.getId()))
+                .thenReturn(new BoatResponse(boat.getId(), boat.getName(), boat.getDescription()));
 
         // Then
-        ResponseEntity<?> response = boatController.getBoat(userDetails, String.valueOf(boat.getId()));
+        ResponseEntity<?> response = boatController.getBoat(String.valueOf(boat.getId()));
 
         // Assert
         assertThat(response).isNotNull();
@@ -87,7 +88,7 @@ class BoatControllerTest {
         assertThat(boatResponse.name()).isEqualTo(boat.getName());
 
         // Verify
-        verify(boatService, times(1)).getBoatById(userDetails.getUsername(), boat.getId());
+        verify(boatService, times(1)).getBoatById(boat.getId());
     }
 
     @Test
@@ -95,11 +96,11 @@ class BoatControllerTest {
         // When
         when(userDetailsService.loadUserByUserDetails(userDetails.getUsername()))
                 .thenReturn(new User(1L,"my name", "username", "password", Role.USER));
-        when(boatService.saveBoat(any(User.class), eq(boatRequest)))
-                .thenReturn(boat);
+        when(boatService.addBoatForCurrentUser(eq(boatRequest)))
+                .thenReturn(new BoatResponse(boat.getId(), boat.getName(), boat.getDescription()));
 
         // Then
-        ResponseEntity<?> response = boatController.addBoat(userDetails, boatRequest);
+        ResponseEntity<?> response = boatController.addBoat(boatRequest);
 
         // Assert
         assertThat(response).isNotNull();
@@ -110,21 +111,21 @@ class BoatControllerTest {
         assertThat(boatResponse.name()).isEqualTo(boat.getName());
 
         // Verify
-        verify(boatService, times(1)).saveBoat(any(User.class), eq(boatRequest));
+        verify(boatService, times(1)).addBoatForCurrentUser(eq(boatRequest));
     }
 
     @Test
     void updateBoat_ShouldReturnUpdatedBoat() {
         // When
-        Boat updatedBoat = new Boat(boat.getId(), "Updated Boat", "Updated Description", new User());
+        BoatResponse updatedBoat = new BoatResponse(boat.getId(), "Updated Boat", "Updated Description");
         BoatRequest updatedBoatRequest = new BoatRequest(boat.getId(), "Updated Boat", "Updated Description");
         when(userDetailsService.loadUserByUserDetails(userDetails.getUsername()))
                 .thenReturn(new User(1L, "my name", "username", "password", Role.USER));
-        when(boatService.patchBoat(any(User.class), eq(updatedBoatRequest)))
+        when(boatService.patchBoat(anyLong(), eq(updatedBoatRequest)))
                 .thenReturn(updatedBoat);
 
         // Then
-        ResponseEntity<?> response = boatController.updateBoat(userDetails, String.valueOf(boat.getId()), updatedBoatRequest);
+        ResponseEntity<?> response = boatController.patchBoat(String.valueOf(boat.getId()), updatedBoatRequest);
 
         // Assert
         assertThat(response).isNotNull();
@@ -136,7 +137,7 @@ class BoatControllerTest {
         assertThat(boatResponse.description()).isEqualTo("Updated Description");
 
         // Verify that the service method was called
-        verify(boatService, times(1)).patchBoat(any(User.class), eq(updatedBoatRequest));
+        verify(boatService, times(1)).patchBoat(anyLong(), eq(updatedBoatRequest));
     }
 
     @Test
@@ -146,13 +147,13 @@ class BoatControllerTest {
                 .thenReturn(new User(1L, "my name", "username", "password", Role.USER));
 
         // Then
-        ResponseEntity<?> response = boatController.deleteBoat(userDetails, String.valueOf(boat.getId()));
+        ResponseEntity<?> response = boatController.deleteBoat(String.valueOf(boat.getId()));
 
         // Assert
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode().value()).isEqualTo(204);
 
         // Verify
-        verify(boatService, times(1)).deleteBoat(1L, boat.getId());
+        verify(boatService, times(1)).deleteBoat(boat.getId());
     }
 }

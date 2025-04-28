@@ -8,7 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfigurationSource;
-import owt.boat_management.filter.RequestFilter;
+import owt.boat_management.security.RequestFilter;
 
 import java.lang.reflect.Field;
 import java.util.List;

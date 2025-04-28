@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.lang.reflect.Field;
 import java.util.Base64;
-import java.util.List;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,7 +31,7 @@ class TokenServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        tokenService = new TokenService();
+        tokenService = new TokenServiceImpl();
 
         try {
             Field jwtSecretField = tokenService.getClass().getDeclaredField("jwtSecret");

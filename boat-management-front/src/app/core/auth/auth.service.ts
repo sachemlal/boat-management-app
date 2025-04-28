@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:7070/api/auth';
+  private apiUrl = environment.apiUrl;
   private accessTokenKey = 'accessToken';
   private refreshTokenKey = 'refreshToken';
 
@@ -17,11 +18,11 @@ export class AuthService {
   }
 
   register(data: { fullname: string; username: string; password: string }) {
-    return this.http.post(`${this.apiUrl}/register`, data);
+    return this.http.post(`${this.apiUrl}/auth/register`, data);
   }
 
   login(credentials: { username: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials, {
+    return this.http.post(`${this.apiUrl}/auth/login`, credentials, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       })
@@ -30,7 +31,7 @@ export class AuthService {
 
   refreshToken(refreshToken: string | null): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}/refresh-token`,
+      `${this.apiUrl}/auth/refresh-token`,
       {refreshToken:  refreshToken},
       {headers: new HttpHeaders({
         'Content-Type': 'application/json'
